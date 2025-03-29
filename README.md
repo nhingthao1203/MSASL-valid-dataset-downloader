@@ -39,25 +39,13 @@ What to do
 9. Repeat 5 - 7 
 10. Repeat 4 - 7 for `MSASL_TRAIN25.json`
 
+------------
+## 📌 Requirements
 
-Note
----------------
-Python = 3.10
-pip install yt-dlp
-Tải ffmpeg từ trang chính thức:
-👉 https://ffmpeg.org/download.html
-Chọn Windows builds from gyan.dev → tải về file .zip.
-
-Giải nén file ZIP vào một thư mục, ví dụ: C:\ffmpeg
-
-Thêm vào PATH:
-
-Mở Start Menu → gõ “Environment Variables”.
-
-Trong phần System Variables → tìm biến Path → chọn Edit.
-
-Thêm dòng: C:\ffmpeg\bin
-
+- Python 3.10
+- Required Python packages:
+  ```bash
+  pip install yt-dlp moviepy
 
 
 
