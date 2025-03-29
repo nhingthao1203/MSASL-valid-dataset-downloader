@@ -1,13 +1,12 @@
 import os
 import shutil
 import json
-from pytube import YouTube
+import yt_dlp
 from moviepy.editor import *
 import moviepy.editor as mpy
 
-
 # where to save
-SAVE_PATH = "MS-ASL100"  # to_do
+SAVE_PATH = "MS-ASL100"
 temp_path = SAVE_PATH + "/untrimmed_videos"
 
 if not os.path.exists(SAVE_PATH):
@@ -16,22 +15,17 @@ if not os.path.exists(temp_path):
     os.makedirs(temp_path)
 
 try:
-
-    # replace test name with each of the desired files.
-    # first test 1 video, then list of 2, then the test or val set.
-    # the following files are included
-    # MSASL_test.json, MSASL_TEST25.json, MSASL_VAL25.json, MSASL_TRAIN25.json
-    train_json = open('MSASL_test.json')
-    videos = json.load(train_json)
-    train_json.close()
-except:
-    print("Connection Error")
+    # Các file JSON có thể dùng: MSASL_test.json, MSASL_TEST25.json, MSASL_VAL25.json, MSASL_TRAIN25.json
+    with open('MSASL_test.json') as train_json:
+        videos = json.load(train_json)
+except Exception as e:
+    print(f"Connection Error: {e}")
+    exit()
 
 # loop through the videos in the dataset
-len = len(videos)
-for i in range(len):
+total = len(videos)
+for i in range(total):
     try:
-        # setup reads info from json and creates groups videos by name
         url = videos[i]['url']
         start_time = videos[i]['start_time']
         end_time = videos[i]['end_time']
@@ -39,37 +33,36 @@ for i in range(len):
         pretitle = videos[i]['clean_text']
         video_title = pretitle + str(i)
         output_title = video_title + ".mp4"
-        temp_file_path = temp_path + "/" + video_title
+        temp_file_path = f"{temp_path}/{video_title}.mp4"
 
-        folder_path = SAVE_PATH + "/" + pretitle
-        output_path = folder_path + "/" + video_title
+        folder_path = f"{SAVE_PATH}/{pretitle}"
+        output_path = f"{folder_path}/{output_title}"
 
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        print(video_title)
-        print('Setup Completed!')
+        print(f"\n===== [{i}/{total}] {video_title} =====")
+        print("Setup Completed!")
 
-        # If video is private or not exist it will give error and go to next
-        yt = YouTube(url)
-        stream = yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
-        # stream = yt.streams.get_highest_resolution()
+        # --- Dùng yt-dlp để tải video ---
+        ydl_opts = {
+            'outtmpl': temp_file_path,
+            'quiet': True,
+            'format': 'bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4'
+        }
 
-        streamclip = stream.download(temp_path, video_title)        #untrimmed-> afraid5
-        print('Download Completed!')
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
 
-        # the downloaded full video is saved as subclip
+        print("Download Completed!")
+
+        # --- Dùng moviepy để cắt video ---
         clip = VideoFileClip(temp_file_path).subclip(start_time, end_time)
-        output = os.path.join(folder_path, output_title)            #afraid-> afraid5.mp4
-        clip.write_videofile(output)
-        print('Task Completed!')
+        clip.write_videofile(output_path)
+        print("Task Completed!")
 
-    #     note that the temp file is still there, add .mp4 to the filename for the full video
-    #     Without keeping it and simply overwriting corrupts the output file
-    #     To add the mp4 extension to them use output_title instead of video_title in temp_file_path
-    except:
-        print("Some Error!")
-
-
-        # # Actually saves the trimmed file
-        # clip.write_videofile(filename=f"trimmed_{uniqueid}.mp4", codec="libx264", audio_codec="aac", remove_temp=True)
+    except Exception as e:
+        print(f"Some Error at index {i} ({video_title}): {e}")
+        #with open("error_log.txt", "a", encoding="utf-8") as log_file:
+            #log_file.write(f"{i}: {video_title}, URL: {url}, Error: {e}\n")

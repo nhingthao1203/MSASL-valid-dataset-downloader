@@ -39,6 +39,31 @@ What to do
 9. Repeat 5 - 7 
 10. Repeat 4 - 7 for `MSASL_TRAIN25.json`
 
+
+Note
+---------------
+Python = 3.10
+pip install yt-dlp
+Tải ffmpeg từ trang chính thức:
+👉 https://ffmpeg.org/download.html
+Chọn Windows builds from gyan.dev → tải về file .zip.
+
+Giải nén file ZIP vào một thư mục, ví dụ: C:\ffmpeg
+
+Thêm vào PATH:
+
+Mở Start Menu → gõ “Environment Variables”.
+
+Trong phần System Variables → tìm biến Path → chọn Edit.
+
+Thêm dòng: C:\ffmpeg\bin
+
+
+
+
+
+
+
 Credits
 ---------------
 Licensed under the Computational Use of Data Agreement (C-UDA). Please refer to [C-UDA-0.1_annotated_discussion.pdf](/C-UDA-0.1_annotated_discussion.pdf) for more information.
